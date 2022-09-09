@@ -1,70 +1,141 @@
-# Getting Started with Create React App
+# simple Todo  List 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### `Constants.js ` 
+```javascript
+    export const INCREMENT = "INCREMENT";
+    export const RESET = "RESET";
+    export const DECREMENT = "DECREMENT";
+```
 
-## Available Scripts
 
-In the project directory, you can run:
 
-### `npm start`
+### `counterActions.js ` 
+```javascript
+   import { DECREMENT, INCREMENT, RESET } from "../constants/counterConstants";
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+    export const incrementCounter = () => {
+      return {
+        type: INCREMENT,
+      };
+    };
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    export const resetCounter = () => {
+      return {
+        type: RESET,
+      };
+    };
 
-### `npm test`
+    export const decrementCounter = () => {
+      return {
+        type: DECREMENT,
+      };
+    };
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `counterActions.js ` 
+```javascript
+    import { DECREMENT, INCREMENT, RESET } from "../constants/counterConstants";
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+      const initialState = { count: 0 };
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+      const counterReducer = (state = initialState, action) => {
+        switch (action.type) {
+          case INCREMENT:
+            return {
+              ...state,
+              count: state.count + 1,
+            };
+          case RESET:
+            return {
+              ...state,
+              count: 0,
+            };
+          case DECREMENT:
+            return {
+              ...state,
+              count: state.count - 1,
+            };
 
-### `npm run eject`
+          default:
+            return state;
+        }
+      };
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+      export default counterReducer;
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### `store.js ` 
+```javascript
+    import { createStore } from "redux";
+        import counterReducer from "./services/reducers/counterReducer";
+        const store = createStore(counterReducer);
+        export default store;
+```
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `provide store in index.js` 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```javascript
+ import React from "react";
+        import { createRoot } from "react-dom/client";
+        import { Provider } from "react-redux";
 
-### Code Splitting
+        import App from "./App";
+        import store from "./store";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+        const container = document.getElementById("root");
+        const root = createRoot(container);
 
-### Analyzing the Bundle Size
+        root.render(
+          <Provider store={store}>
+            <App />
+          </Provider>
+        );
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### Making a Progressive Web App
+### `Counter.js `
+```javascript
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+ import React from "react";
+      import { useDispatch, useSelector } from "react-redux";
+      import {
+        incrementCounter,
+        decrementCounter,
+        resetCounter,
+      } from "./services/actions/counterAction";
 
-### Advanced Configuration
+      const Counter = () => {
+        const count = useSelector((state) => state.count);
+        const dispatch = useDispatch();
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+        const handleIncrement = () => {
+          dispatch(incrementCounter());
+        };
 
-### Deployment
+        const handleReset = () => {
+          dispatch(resetCounter());
+        };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+        const handleDecrement = () => {
+          dispatch(decrementCounter());
+        };
 
-### `npm run build` fails to minify
+        return (
+          <div>
+            <h1>React Redux Example</h1>
+            <h2>Count : {count}</h2>
+            <button onClick={handleIncrement}>Increment</button>
+            <button onClick={handleReset}>Reset</button>
+            <button onClick={handleDecrement}>Decrement</button>
+          </div>
+        );
+      };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+      export default Counter;
+```
+
