@@ -1,141 +1,137 @@
 # simple Todo  List 
 
-### `Constants.js ` 
+
+
+### `counterSlice.js ` 
 ```javascript
-    export const INCREMENT = "INCREMENT";
-    export const RESET = "RESET";
-    export const DECREMENT = "DECREMENT";
+   import { createSlice } from "@reduxjs/toolkit";
+
+// state: count:0
+// increment, decrement, reset
+
+// const incrementCounter = () => {
+//   return { type: "INCREMENT" };
+// };
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState: { count: 0 },
+  reducers: {
+    increment: (state) => {
+      state.count = state.count + 1;
+    },
+    decrement: (state) => {
+      state.count = state.count - 1;
+    },
+    reset: (state) => {
+      state.count = 0;
+    },
+    increaseByAmount: (state, action) => {
+      state.count = state.count + action.payload;
+    },
+  },
+});
+
+// export reducer and action createor
+// Action creators are generated for each case reducer function
+export const { increment, decrement, reset, increaseByAmount } =
+  counterSlice.actions;
+
+export default counterSlice.reducer;
 ```
-
-
-
-### `counterActions.js ` 
-```javascript
-   import { DECREMENT, INCREMENT, RESET } from "../constants/counterConstants";
-
-    export const incrementCounter = () => {
-      return {
-        type: INCREMENT,
-      };
-    };
-
-    export const resetCounter = () => {
-      return {
-        type: RESET,
-      };
-    };
-
-    export const decrementCounter = () => {
-      return {
-        type: DECREMENT,
-      };
-    };
-```
-
-
-
-### `counterActions.js ` 
-```javascript
-    import { DECREMENT, INCREMENT, RESET } from "../constants/counterConstants";
-
-      const initialState = { count: 0 };
-
-      const counterReducer = (state = initialState, action) => {
-        switch (action.type) {
-          case INCREMENT:
-            return {
-              ...state,
-              count: state.count + 1,
-            };
-          case RESET:
-            return {
-              ...state,
-              count: 0,
-            };
-          case DECREMENT:
-            return {
-              ...state,
-              count: state.count - 1,
-            };
-
-          default:
-            return state;
-        }
-      };
-
-      export default counterReducer;
-```
-
 
 
 ### `store.js ` 
 ```javascript
-    import { createStore } from "redux";
-        import counterReducer from "./services/reducers/counterReducer";
-        const store = createStore(counterReducer);
-        export default store;
+import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./slices/counterSlice"
+const store = configureStore({
+  reducer: {
+    counter: counterReducer,
+  },
+});
+export default store;
 ```
 
 
 ### `provide store in index.js` 
 
 ```javascript
- import React from "react";
-        import { createRoot } from "react-dom/client";
-        import { Provider } from "react-redux";
+ import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
-        import App from "./App";
-        import store from "./store";
 
-        const container = document.getElementById("root");
-        const root = createRoot(container);
-
-        root.render(
-          <Provider store={store}>
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
             <App />
-          </Provider>
-        );
+    </Provider>
+  </React.StrictMode>
+);
+
+reportWebVitals();
+
 ```
 
 
 ### `Counter.js `
 ```javascript
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  decrement,
+  increaseByAmount,
+  increment,
+  reset,
+} from "./redux/slices/counterSlice.js";
 
- import React from "react";
-      import { useDispatch, useSelector } from "react-redux";
-      import {
-        incrementCounter,
-        decrementCounter,
-        resetCounter,
-      } from "./services/actions/counterAction";
+const Counter = () => {
+  const count = useSelector((state) => state.counter.count);
 
-      const Counter = () => {
-        const count = useSelector((state) => state.count);
-        const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-        const handleIncrement = () => {
-          dispatch(incrementCounter());
-        };
+  return (
+    <div>
+      <h2>Counter: {count}</h2>
+      <button
+        onClick={() => {
+          dispatch(increment());
+        }}
+      >
+        Increment
+      </button>
+      <button
+        onClick={() => {
+          dispatch(reset());
+        }}
+      >
+        reset
+      </button>
+      <button
+        onClick={() => {
+          dispatch(decrement());
+        }}
+      >
+        Decrement
+      </button>
+      <button
+        onClick={() => {
+          dispatch(increaseByAmount(5));
+        }}
+      >
+        IncrementBy5
+      </button>
+    </div>
+  );
+};
 
-        const handleReset = () => {
-          dispatch(resetCounter());
-        };
-
-        const handleDecrement = () => {
-          dispatch(decrementCounter());
-        };
-
-        return (
-          <div>
-            <h1>React Redux Example</h1>
-            <h2>Count : {count}</h2>
-            <button onClick={handleIncrement}>Increment</button>
-            <button onClick={handleReset}>Reset</button>
-            <button onClick={handleDecrement}>Decrement</button>
-          </div>
-        );
-      };
-
-      export default Counter;
+export default Counter;
 ```
 
